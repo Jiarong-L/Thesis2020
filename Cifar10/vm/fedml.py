@@ -5,6 +5,7 @@ import os
 import matplotlib.pyplot as plt
 import glob
 import psutil
+import math
 
 from worker_node import node_training_process
 from models import ANN_model
@@ -33,7 +34,7 @@ def memory(epo):
 class Fed_Training():
     # This is only a simulation
     
-    def __init__(self,model,nodes_path,central_path,x_test, y_test,batch_size = 50,augument=False,local_iid=False):
+    def __init__(self,model,nodes_path,central_path,x_test, y_test,batch_size = 50,augument=False,local_iid=False,node_evl=False):
         self.model=model
         self.epo=0
 
@@ -46,6 +47,7 @@ class Fed_Training():
         self.batch_size=batch_size
         self.augument=augument
         self.local_iid=local_iid
+        self.node_evl=node_evl
         self.bad_node=False
 
         self.acc_h=[]
@@ -97,7 +99,7 @@ class Fed_Training():
         # with g.as_default(): #tf.graph to solve memory leak
         for index_path in self.delayed_index:
             # Run each nodes and collect their weights
-            model_weights, nb=node_training_process(index_path,self.shared_index,self.central_p,self.local_epoch,self.batch_size,self.augument,self.local_iid)
+            model_weights, nb=node_training_process(index_path,self.shared_index,self.central_p,self.local_epoch,self.batch_size,self.augument,self.local_iid,self.node_evl)
             model_w=get_nb_matrix(model_weights,nb)
             self.delayed_weight_list.append(model_weights)
             self.delayed_nb_list.append(model_w)
@@ -123,7 +125,7 @@ class Fed_Training():
 
         for index_path in self.nodes_p:
             # Run each nodes and collect their weights
-            model_weights, nb=node_training_process(index_path,self.shared_index,self.central_p,self.local_epoch,self.batch_size,self.augument,self.local_iid)
+            model_weights, nb=node_training_process(index_path,self.shared_index,self.central_p,self.local_epoch,self.batch_size,self.augument,self.local_iid,self.node_evl)
             model_w=get_nb_matrix(model_weights,nb)
             self.weight_list.append(model_weights)
             self.nb_list.append(model_w)
@@ -165,6 +167,18 @@ class Fed_Training():
         self.local_epoch=local_epoch
         max_acc=0
         count=0
+
+        # divide the testing set to each worker node for node_evl
+        if self.node_evl:
+            evl_nb = len(self.nodes_p)
+            evl_len = int(math.floor(10000/evl_nb)) # since central node use 10000 testing set
+            evl_total = np.array([i for i in range(10000)])
+            np.random.shuffle(evl_total)
+            for i in range(evl_nb):
+                base_p = self.nodes_p[i][:-9]+'evl_index.npy'
+                evl_set = evl_total[i*evl_len:i*evl_len+evl_len]
+                np.save(base_p,evl_set)
+
 
         for ee in range(epoch):
             self.fed_train_step()

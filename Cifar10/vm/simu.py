@@ -20,16 +20,29 @@ for i in range(10):
 
 ##############################################################################
 '''
-Scenario iid.10w.4000
+Scenario 2c.10w.4000
 Here get 10 worker nodes.
-worker: 10 class * 40 class_data  = 400
+worker: 2 class * 200 class_data  =400
+
 '''
 index_list=[]
 worker_nb=10
-class_nb=10
-class_data=40
+class_nb=2
+class_data=200
+
+class_set=[]
+for i in range(worker_nb):
+    x=[i+j for j in range(class_nb)]
+    for c in range(len(x)):
+        while True:
+            if x[c]<10:
+                break
+            x[c]=x[c]-10  
+    class_set.append(x)
+print(class_set)
+
 for j in range(worker_nb):
-    index=np.concatenate([category_index[i][j*class_data:j*class_data+class_data] for i in range(class_nb)])
+    index=np.concatenate([category_index[i][j*class_data:j*class_data+class_data] for i in class_set[j]])
     index_list.append(index)
 len(index_list)
 ##############################################################################

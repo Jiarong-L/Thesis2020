@@ -37,16 +37,19 @@ my_AUGUMENT= False
 local_IID = False
 
 
-bad_NODE = True
-bad_node_nb = 1
-bad_node_size = 40
+bad_NODE = False
+bad_node_nb = 0
+bad_node_size = 0
 
 
+node_EVL = True  # usually false to save time
 
 # SCENARIO='2c.40w.4000.dly{}.speed{}'.format(delayed_node_NUMBER,delayed_SPEED)
 # SCENARIO='1c.{}w.4000.share{}00'.format(usual_node_NUMBER,shared_node_NUMBER)
 
-SCENARIO='11d.{}w.4000.plus{}bad_each{}'.format(usual_node_NUMBER,bad_node_nb,bad_node_size)
+# SCENARIO='iid.{}w.4000.plus{}bad_each{}'.format(usual_node_NUMBER,bad_node_nb,bad_node_size)
+
+SCENARIO='2c.{}w.4000_node_EVL'.format(usual_node_NUMBER)
 ###################################################################################################
 
 epo = my_EPO
@@ -67,7 +70,7 @@ print(len(shared_index))
 
 
 # initialize
-train = Fed_Training(model,non_delayed_index,central_weight_path,x_test, y_test,batch_size=50,augument=my_AUGUMENT,local_iid=local_IID)
+train = Fed_Training(model,non_delayed_index,central_weight_path,x_test, y_test,batch_size=50,augument=my_AUGUMENT,local_iid=local_IID,node_evl=node_EVL)
 train.load_test_set()
 
 # set bad nodes

@@ -40,7 +40,7 @@ def set_iid(y_train,x_train):
 
 
 
-def node_training_process(index_path,shared_index,central_weight_path,local_epoch,batch_size=50,augment=False,local_iid=False):
+def node_training_process(index_path,shared_index,central_weight_path,local_epoch,batch_size=50,augment=False,local_iid=False,node_evl=False):
     '''
     1. Get index and initial_weights from central,
     2. Load & prepare the dataset accordingly,
@@ -52,21 +52,35 @@ def node_training_process(index_path,shared_index,central_weight_path,local_epoc
     g = tf.Graph()
     with g.as_default(): #tf.graph to solve memory leak
 
+        # load & processing data
+        (x_train, y_train), (x_test, y_test) = tf.keras.datasets.cifar10.load_data() 
+
+        autotune=tf.data.experimental.AUTOTUNE
+
         # load index
         index1 = np.load(index_path) 
+
+        # assign node_evl_set (1/3)
+        if node_evl:
+            evl_p = index_path[:-9]+'evl_index.npy'
+            evl_index = np.load(evl_p)
+            x_test_n=x_test[evl_index]
+            y_test_n=y_test[evl_index]
+            x_evl=tf.data.Dataset.from_tensor_slices(x_test_n)
+            y_evl=tf.data.Dataset.from_tensor_slices(y_test_n)
+            node_evl_set = tf.data.Dataset.zip((x_evl, y_evl))
+            node_evl_set = node_evl_set.repeat().batch(batch_size).prefetch(buffer_size=autotune)
+            total_node_evl = evl_index.shape[0] ###################################
 
         if shared_index!=[]:
             for x in shared_index:
                 b=np.load(x)
                 index1 = np.concatenate((index1, b))
 
-        # load & processing data
-        (x_train, y_train), (_, _) = tf.keras.datasets.cifar10.load_data() 
 
         x_train_i=x_train[index1]
         y_train_i=y_train[index1]
 
-        autotune=tf.data.experimental.AUTOTUNE
         buffer_size = x_train_i.shape[0]
         total_traning=index1.shape[0]
 
@@ -86,10 +100,23 @@ def node_training_process(index_path,shared_index,central_weight_path,local_epoc
 
 
     # Training & save
+        # THIS LINE SHOULD BE THE FIRST
         save_dir = index_path[:-9]
 
         model=ANN_model()
         model.load_weights(central_weight_path)
+
+
+        # node_evl before training (2/3)
+        if node_evl:
+            [loss, acc] = model.evaluate(node_evl_set,steps=total_node_evl//batch_size,verbose=0)
+            filename = os.path.join(save_dir,'node_EVAL_before_training.txt')
+            with open(filename,'a') as file_handle:
+                    file_handle.write(str(loss))
+                    file_handle.write(' ')
+                    file_handle.write(str(acc))
+                    file_handle.write('\n')
+
 
         # test the loaded model to see if it's overtrainned? mention it's last epo's acc
         [self_loss, self_acc]=model.evaluate(train_set,steps=total_traning//batch_size,verbose=0)
@@ -106,6 +133,15 @@ def node_training_process(index_path,shared_index,central_weight_path,local_epoc
                             steps_per_epoch=total_traning//batch_size,
                             verbose=0)
 
+        # node_evl after training (3/3)
+        if node_evl:
+            [loss, acc] = model.evaluate(node_evl_set,steps=total_node_evl//batch_size,verbose=0)
+            filename = os.path.join(save_dir,'node_EVAL_after_training.txt')
+            with open(filename,'a') as file_handle:
+                    file_handle.write(str(loss))
+                    file_handle.write(' ')
+                    file_handle.write(str(acc))
+                    file_handle.write('\n')
 
         # return model_weight   
         model_weights=model.get_weights() 
