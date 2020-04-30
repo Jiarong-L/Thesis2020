@@ -1,0 +1,31 @@
+'''
+Scenario Union-1c
+A. 1c.100.40w.4000
+B. 10c.10.10w.1000
+'''
+#A
+index_list=[]
+worker_nb=40
+class_nb=1
+class_data=100
+for i in range(worker_nb):
+    n=i%10
+    k=i//10
+#     print(n,k)
+    index=category_index[n][class_data*k:class_data*k+class_data]
+    start_point=class_data*k+class_data
+    index_list.append(index)
+    
+print(start_point)
+
+
+#B
+worker_nb=10
+class_nb=10
+class_data=10
+for j in range(worker_nb):
+    index=np.concatenate([category_index[i][start_point+j*class_data:start_point+j*class_data+class_data] for i in range(class_nb)])
+    end_point=start_point+j*class_data+class_data
+    index_list.append(index)
+print(end_point)
+worker_nb=len(index_list)
