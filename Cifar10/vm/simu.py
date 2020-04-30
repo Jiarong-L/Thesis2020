@@ -46,6 +46,13 @@ for j in range(worker_nb):
     index_list.append(index)
 len(index_list)
 ##############################################################################
+print(len(index_list))
+for i in range(len(index_list)):
+    index1=index_list[i]
+    print(len(y_train[index1]))
+    print(np.unique(y_train[index1],return_counts=True))
+
+##******************************************************************************
 
 base_path='worker_nodes'
 workers=['model'+str(int(i+1)) for i in range(worker_nb)] #save like 'worker_nodes/model1/index.npy'
