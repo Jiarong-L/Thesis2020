@@ -1,0 +1,20 @@
+#cloud-config
+
+apt_update: true
+apt_upgrade: true
+packages:
+ - python3-pip
+ - build-essential
+ - python3-opencv
+
+byobu_default: system 
+
+runcmd:
+ - pip3 install --upgrade pip
+ - python3 -m pip install tensorflow-gpu==2.0.1
+ - python3 -m pip install matplotlib
+ - python3 -m pip install psutil
+ - python3 -m pip install jupyter
+ - python3 -m pip install pandas
+ - python3 -m pip install grpcio
+ - python3 -m pip install grpc_tools

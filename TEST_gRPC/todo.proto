@@ -1,0 +1,23 @@
+syntax = 'proto3';
+
+package todoPackage;
+
+service FedML {
+    
+    rpc getWeight(void) returns (stream modelWeight);
+    rpc sendWeight(stream modelWeight) returns (myResponse);
+    rpc reCheck(void) returns (myResponse);
+    
+}
+
+message modelWeight {
+    string model = 1;
+    string clientname = 2;
+    int32 clientsize=3;
+}
+
+message myResponse {
+    int32 value = 1;
+}
+
+message void {}

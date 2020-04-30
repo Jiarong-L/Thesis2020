@@ -1,0 +1,16 @@
+'''
+Scenario 1c.40w.4000
+Here get 40 worker nodes.
+worker: 1 class * 100 class_data  =100
+
+'''
+index_list=[]
+worker_nb=40
+class_nb=1
+class_data=100
+for i in range(worker_nb):
+    n=i%10
+    k=i//10
+#     print(n,k)
+    index=category_index[n][class_data*k:class_data*k+class_data]
+    index_list.append(index)
