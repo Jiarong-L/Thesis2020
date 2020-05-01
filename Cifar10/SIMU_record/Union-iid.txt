@@ -1,0 +1,27 @@
+'''
+Scenario Union-iid
+A. iid.10w.4000
+B. 10c.10.10w.1000
+'''
+#A
+
+index_list=[]
+worker_nb=10
+class_nb=10
+class_data=40
+for j in range(worker_nb):
+    index=np.concatenate([category_index[i][j*class_data:j*class_data+class_data] for i in range(class_nb)])
+    index_list.append(index)
+    start_point=j*class_data+class_data
+print(start_point)
+
+#B
+worker_nb=10
+class_nb=10
+class_data=10
+for j in range(worker_nb):
+    index=np.concatenate([category_index[i][start_point+j*class_data:start_point+j*class_data+class_data] for i in range(class_nb)])
+    end_point=start_point+j*class_data+class_data
+    index_list.append(index)
+print(end_point)
+worker_nb=len(index_list)

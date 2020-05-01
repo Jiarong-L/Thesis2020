@@ -168,16 +168,16 @@ class Fed_Training():
         max_acc=0
         count=0
 
-        # divide the testing set to each worker node for node_evl
-        if self.node_evl:
-            evl_nb = len(self.nodes_p)
-            evl_len = int(math.floor(10000/evl_nb)) # since central node use 10000 testing set
-            evl_total = np.array([i for i in range(10000)])
-            np.random.shuffle(evl_total)
-            for i in range(evl_nb):
-                base_p = self.nodes_p[i][:-9]+'evl_index.npy'
-                evl_set = evl_total[i*evl_len:i*evl_len+evl_len]
-                np.save(base_p,evl_set)
+        # # OLD_EVL_NODE: divide the testing set to each worker node for node_evl
+        # if self.node_evl:
+        #     evl_nb = len(self.nodes_p)
+        #     evl_len = int(math.floor(10000/evl_nb)) # since central node use 10000 testing set
+        #     evl_total = np.array([i for i in range(10000)])
+        #     np.random.shuffle(evl_total)
+        #     for i in range(evl_nb):
+        #         base_p = self.nodes_p[i][:-9]+'evl_index.npy'
+        #         evl_set = evl_total[i*evl_len:i*evl_len+evl_len]
+        #         np.save(base_p,evl_set)
 
 
         for ee in range(epoch):

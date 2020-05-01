@@ -49,7 +49,7 @@ node_EVL = True  # usually false to save time
 
 # SCENARIO='iid.{}w.4000.plus{}bad_each{}'.format(usual_node_NUMBER,bad_node_nb,bad_node_size)
 
-SCENARIO='2c.{}w.4000_node_EVL'.format(usual_node_NUMBER)
+SCENARIO='iid.{}w.4000_node_EVL'.format(usual_node_NUMBER)
 ###################################################################################################
 
 epo = my_EPO
