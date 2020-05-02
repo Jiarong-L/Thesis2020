@@ -5,6 +5,19 @@ import matplotlib.pyplot as plt
 import glob
 
 
+def Xception_model(myshape):
+
+
+    model = tf.keras.applications.xception.Xception(include_top=True, weights=None, input_shape=myshape, classes=6)
+
+    model.compile(optimizer='adam',
+                  loss='sparse_categorical_crossentropy',
+                  metrics=['acc'])
+
+    return model
+
+
+
 
 def ANN_model():  
     

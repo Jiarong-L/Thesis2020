@@ -16,10 +16,10 @@ import glob
 import base64
 import math
 
-from models import ANN_model
-model=ANN_model()
+from models import ANN_model,Xception_model
 
-WEIGHT_PATH="client001/test_weights.h5"
+
+WEIGHT_PATH="client001/client_weights.h5"
 CLIENTSIZE=100
 
 
@@ -78,7 +78,17 @@ def run():
         msg=ClientgetWeight(stub)
         print('ClientgetWeight done')
 
-        #TODO: Client do local training here
+
+
+
+        #TODO: Client do local training here, save weight at WEIGHT_PATH
+        myshape = (229,229,1)
+        model=Xception_model(myshape)
+        model.load_weights(WEIGHT_PATH)
+
+
+
+
 
 
         msg=ClientsendWeight(stub) 

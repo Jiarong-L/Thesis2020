@@ -17,12 +17,13 @@ import math
 import time
 import datetime
 
-from models import ANN_model
-model=ANN_model()
-model.save_weights('server/ANN_model.h5') #TODO: hash this line if want the server to continue after crash..???
+from models import ANN_model,Xception_model
+myshape = (229,229,1)
+model=Xception_model(myshape)
+model.save_weights('server/server_weight.h5') #TODO: hash this line if want the server to continue after crash..???
 
 
-WEIGHT_PATH='server/ANN_model.h5'
+WEIGHT_PATH='server/server_weight.h5'
 EVALUATE_SAMPLE_FOLDER='9' ##TODO:??
 EVALUATE_RESULT_PATH='server/evaluate'+datetime.datetime.now().strftime("%Y%m%d-%H%M%S")+'.txt'
 
@@ -70,7 +71,6 @@ class FedMLServicer(todo_pb2_grpc.FedMLServicer):
             acc=3
             t.write("{}\n".format(acc))
 
-        pass
 
 
     def getWeight(self, request, context):
@@ -92,7 +92,7 @@ class FedMLServicer(todo_pb2_grpc.FedMLServicer):
         server collect and save the model from client
         '''
 
-        for loops in range(100): #if previous round is not yet finished, hold for a while
+        for loops in range(1000): #if previous round is not yet finished, hold for a while
             if self.isready==True:
                 time.sleep(1)
             else:
@@ -128,7 +128,7 @@ class FedMLServicer(todo_pb2_grpc.FedMLServicer):
         myresponse = todo_pb2.myResponse()
         myresponse.value = 0
 
-        for loops in range(100): ### wait till all client is ready
+        for loops in range(1000): ### wait till all client is ready
             if self.isready:
                 myresponse.value = 1
                 self.clientPathList.remove(current_PATH)

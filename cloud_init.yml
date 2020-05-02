@@ -6,6 +6,7 @@ packages:
  - python3-pip
  - build-essential
  - python3-opencv
+ - unzip
 
 byobu_default: system 
 
