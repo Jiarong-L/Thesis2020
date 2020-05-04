@@ -8,8 +8,8 @@ import cv2
 
 tf.__version__
 
-gpus = tf.config.experimental.list_physical_devices(device_type='GPU')
-tf.config.experimental.set_virtual_device_configuration( gpus[0], [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=15500)])
+# gpus = tf.config.experimental.list_physical_devices(device_type='GPU')
+# tf.config.experimental.set_virtual_device_configuration( gpus[0], [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=15500)])
 #Tesla P100-PCIE-16GB
 
 def load_img(img,lab):
@@ -33,12 +33,12 @@ iid_total_set = pd.concat([total_set[total_set['label']==i*2][:1000] for i in ra
 random_set = iid_total_set.sample(frac=1).reset_index(drop=True)
 
 ## settings
-fraction_val = 0.1 ############################################################################
+fraction_val = 0.2 ############################################################################
 
 valid_LEN=int(len(random_set)*fraction_val)
 train_LEN=int(len(random_set)-valid_LEN)
 
-batch_SIZE=21 ####################################################################################
+batch_SIZE=100 ####################################################################################
 train_EPO=int(train_LEN // batch_SIZE)
 valid_EPO=int(valid_LEN // batch_SIZE)
 
@@ -60,7 +60,7 @@ valid_SET = tf.data.Dataset.from_tensor_slices((iid_valid['dir'],iid_valid['labe
 
 
 
-myshape = (512,512,1)
+myshape = (299,299,1)
 model = tf.keras.applications.xception.Xception(include_top=True, weights=None, input_shape=myshape, classes=3)
 # it said include_top should be false if input_shape is not (229,229,3), but the only difference is to add avg_pooling and prediction
 model.compile(optimizer='adam',
@@ -68,7 +68,7 @@ model.compile(optimizer='adam',
                   metrics=['acc'])
 
 
-epo=200 #5000
+epo=100 #5000
 history= model.fit(train_SET,
                   epochs=epo,
                   steps_per_epoch=train_EPO,
