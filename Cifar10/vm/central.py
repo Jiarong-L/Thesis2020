@@ -28,7 +28,7 @@ model.save_weights(central_weight_path)
 my_EPO = 5000
 loc_EPO = 1
 early_STOP = 500
-usual_node_NUMBER = 10
+usual_node_NUMBER = 40
 delayed_node_NUMBER = 0
 shared_node_NUMBER = 0
 delayed_SPEED = 1
@@ -42,14 +42,14 @@ bad_node_nb = 0
 bad_node_size = 0
 
 
-node_EVL = True  # usually false to save time
+node_EVL = False  # usually false to save time
 
 # SCENARIO='2c.40w.4000.dly{}.speed{}'.format(delayed_node_NUMBER,delayed_SPEED)
-# SCENARIO='1c.{}w.4000.share{}00'.format(usual_node_NUMBER,shared_node_NUMBER)
+# SCENARIO='iid.{}w.4000.share{}00'.format(usual_node_NUMBER,shared_node_NUMBER)
 
 # SCENARIO='iid.{}w.4000.plus{}bad_each{}'.format(usual_node_NUMBER,bad_node_nb,bad_node_size)
 
-SCENARIO='iid.{}w.4000_node_EVL'.format(usual_node_NUMBER)
+SCENARIO='iid.{}w.4000'.format(usual_node_NUMBER)
 ###################################################################################################
 
 epo = my_EPO

@@ -21,13 +21,13 @@ for i in range(10):
 ##############################################################################
 '''
 Scenario iid.40w.4000
-Here get 10 worker nodes.
-worker: 10 class * 40 class_data  =400
+Here get 40 worker nodes.
+worker: 10 class * 10 class_data  =100
 '''
 index_list=[]
-worker_nb=10
+worker_nb=40
 class_nb=10
-class_data=40
+class_data=10
 for j in range(worker_nb):
     index=np.concatenate([category_index[i][j*class_data:j*class_data+class_data] for i in range(class_nb)])
     index_list.append(index)
