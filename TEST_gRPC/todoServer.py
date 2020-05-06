@@ -8,6 +8,7 @@ import todo_pb2
 
 
 import tensorflow as tf
+import pandas as pd
 import numpy as np
 import os
 import shutil
@@ -18,15 +19,21 @@ import time
 import datetime
 
 from models import ANN_model,Xception_model
-myshape = (229,229,1)
-model=Xception_model(myshape)
+MYSHAPE = (229,229,1)
+model=Xception_model(MYSHAPE)
 model.save_weights('server/server_weight.h5') #TODO: hash this line if want the server to continue after crash..???
 
 
 WEIGHT_PATH='server/server_weight.h5'
-EVALUATE_SAMPLE_FOLDER='9' ##TODO:??
 EVALUATE_RESULT_PATH='server/evaluate'+datetime.datetime.now().strftime("%Y%m%d-%H%M%S")+'.txt'
+EVALUATE_DATA=pd.read_pickle('index/iid_valid.pkl')
 
+def load_img(img,lab):
+    img=tf.io.read_file(img)
+    img=tf.image.decode_jpeg(img, channels=1)
+    img = tf.cast(img,tf.float32) 
+    lab = tf.cast(lab,tf.float32)/2 
+    return img,lab
 
 def get_nb_matrix(model_weights,nb): #used to support np.average
     model_w=[]
@@ -57,19 +64,25 @@ class FedMLServicer(todo_pb2_grpc.FedMLServicer):
 
     def __init__(self):
         self.clientPathList=[]
-        self.worker_nb=2         #TODO:??????
+        self.worker_nb=3         #TODO:??????
         self.isready=False
         self.sizeList=[]
-        self.model=ANN_model()
+        self.model=Xception_model(MYSHAPE)
 
     def evaluateModel(self):
-
-
+        batch_SIZE=100
+        valid_LEN = int(len(EVALUATE_DATA))
+        valid_EPO=int(valid_LEN // batch_SIZE)
+        valid_SET = tf.data.Dataset.from_tensor_slices((EVALUATE_DATA['dir'],EVALUATE_DATA['label'])).\
+                            map(load_img).\
+                            batch(batch_SIZE).\
+                            repeat().\
+                            prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
+        [loss,acc] =self.model.evaluate(valid_SET,steps=valid_EPO,verbose=1)
         print('evaluation done~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
 
         with open(EVALUATE_RESULT_PATH,'a') as t:
-            acc=3
-            t.write("{}\n".format(acc))
+            t.write("{} {}\n".format(loss,acc))
 
 
 
