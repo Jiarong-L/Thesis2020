@@ -92,22 +92,33 @@ def run():
 
 
         #TODO: Client do local training here, save weight at WEIGHT_PATH
-        myshape = (229,229,1)
-        model=Xception_model(myshape)
-        model.load_weights(WEIGHT_PATH)
+        g = tf.Graph()
+        with g.as_default(): #tf.graph to solve memory leak
+            myshape = (229,229,1)
+            model=Xception_model(myshape)
+            model.load_weights(WEIGHT_PATH)
 
-        batch_SIZE=100
-        train_LEN = int(len(TRAIN_DATA))
-        train_EPO=int(train_LEN // batch_SIZE)
-        train_SET = tf.data.Dataset.from_tensor_slices((TRAIN_DATA['dir'],TRAIN_DATA['label'])).\
-                                        shuffle(train_LEN).\
-                                        map(load_img).\
-                                        batch(batch_SIZE).\
-                                        repeat().\
-                                        prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
-        epo=1
-        model.fit(train_SET,epochs=epo,steps_per_epoch=train_EPO)
-        model.save_weights(WEIGHT_PATH)
+            batch_SIZE=100
+            train_LEN = int(len(TRAIN_DATA))
+            train_EPO=int(train_LEN // batch_SIZE)
+            train_SET = tf.data.Dataset.from_tensor_slices((TRAIN_DATA['dir'],TRAIN_DATA['label'])).\
+                                            shuffle(train_LEN).\
+                                            map(load_img).\
+                                            batch(batch_SIZE).\
+                                            repeat().\
+                                            prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
+            epo=1
+            history = model.fit(train_SET,epochs=epo,steps_per_epoch=train_EPO)
+            model.save_weights(WEIGHT_PATH)
+            filename = WEIGHT_PATH[:-17]+'self_EVAL.txt'
+            with open(filename,'a') as f:
+                f.write(str(history.history.get('loss')))
+                f.write(' ')
+                f.write(str(history.history.get('acc')))
+                f.write('\n')
+
+            del model
+        tf.keras.backend.clear_session()
 
 
 
