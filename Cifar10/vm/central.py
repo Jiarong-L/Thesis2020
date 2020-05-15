@@ -9,8 +9,8 @@ from fedml import Fed_Training
 import datetime
 
 
-# gpus = tf.config.experimental.list_physical_devices(device_type='GPU')
-# tf.config.experimental.set_virtual_device_configuration( gpus[0], [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=3500)])
+gpus = tf.config.experimental.list_physical_devices(device_type='GPU')
+tf.config.experimental.set_virtual_device_configuration( gpus[0], [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=3500)])
 
 # data 
 index_collection=glob.glob('worker_nodes/*/index.npy')
@@ -25,10 +25,10 @@ model.save_weights(central_weight_path)
 
 
 ###################################################################################################
-my_EPO = 5000
+my_EPO = 200 # 5000
 loc_EPO = 1
 early_STOP = 500
-usual_node_NUMBER = 40
+usual_node_NUMBER = 10
 delayed_node_NUMBER = 0
 shared_node_NUMBER = 0
 delayed_SPEED = 1
@@ -42,14 +42,14 @@ bad_node_nb = 0
 bad_node_size = 0
 
 
-node_EVL = False  # usually false to save time
+node_EVL = True  # usually false to save time
 
 # SCENARIO='2c.40w.4000.dly{}.speed{}'.format(delayed_node_NUMBER,delayed_SPEED)
 # SCENARIO='iid.{}w.4000.share{}00'.format(usual_node_NUMBER,shared_node_NUMBER)
 
 # SCENARIO='iid.{}w.4000.plus{}bad_each{}'.format(usual_node_NUMBER,bad_node_nb,bad_node_size)
 
-SCENARIO='iid.{}w.4000'.format(usual_node_NUMBER)
+SCENARIO='iid.{}w.4000_node_EVL'.format(usual_node_NUMBER)
 ###################################################################################################
 
 epo = my_EPO

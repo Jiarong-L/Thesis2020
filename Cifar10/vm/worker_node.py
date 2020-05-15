@@ -60,17 +60,25 @@ def node_training_process(index_path,shared_index,central_weight_path,local_epoc
         # load index
         index1 = np.load(index_path) 
 
-        # assign node_evl_set (1/3)
+        # assign node_evl_set (1/2)
         if node_evl:
             evl_p = index_path[:-9]+'evl_index.npy'
             evl_index = np.load(evl_p)
             x_test_n=x_test[evl_index]
             y_test_n=y_test[evl_index]
-            x_evl=tf.data.Dataset.from_tensor_slices(x_test_n)
-            y_evl=tf.data.Dataset.from_tensor_slices(y_test_n)
-            node_evl_set = tf.data.Dataset.zip((x_evl, y_evl))
-            node_evl_set = node_evl_set.repeat().batch(batch_size).prefetch(buffer_size=autotune)
-            total_node_evl = evl_index.shape[0] ###################################
+            node_evl_list = []
+            total_node_evl_list = []
+            for i in range(10):
+                index0 = np.where(y_test_n == i)
+                index = index0[0]
+                x_evl=tf.data.Dataset.from_tensor_slices(x_test_n[index])
+                y_evl=tf.data.Dataset.from_tensor_slices(y_test_n[index])
+                node_evl_set = tf.data.Dataset.zip((x_evl, y_evl))
+                node_evl_set = node_evl_set.repeat().batch(1).prefetch(buffer_size=autotune)
+                total_node_evl = len(index)
+                node_evl_list.append(node_evl_set)
+                total_node_evl_list.append(total_node_evl)
+
 
         if shared_index!=[]:
             shared_test_index = np.array([0])
@@ -117,15 +125,20 @@ def node_training_process(index_path,shared_index,central_weight_path,local_epoc
         model.load_weights(central_weight_path)
 
 
-        # node_evl before training (2/3)
+        # node_evl before training (2/2)
         if node_evl:
-            [loss, acc] = model.evaluate(node_evl_set,steps=total_node_evl//batch_size,verbose=0)
             filename = os.path.join(save_dir,'node_EVAL_before_training.txt')
             with open(filename,'a') as file_handle:
-                    file_handle.write(str(loss))
-                    file_handle.write(' ')
-                    file_handle.write(str(acc))
-                    file_handle.write('\n')
+                for i in range(10):
+                    if total_node_evl_list[i]==0:
+                        file_handle.write('200')
+                        file_handle.write(' ')
+                    else:
+                        [loss, acc] = model.evaluate(node_evl_list[i],steps=total_node_evl_list[i]//1,verbose=0)
+                        file_handle.write(str(acc))
+                        file_handle.write(' ')
+                file_handle.write('\n')
+
 
         # see if overtrained over the shared index
         if shared_index!=[]:
@@ -152,16 +165,6 @@ def node_training_process(index_path,shared_index,central_weight_path,local_epoc
                             epochs=local_epoch,
                             steps_per_epoch=total_traning//batch_size,
                             verbose=0)
-
-        # node_evl after training (3/3)
-        if node_evl:
-            [loss, acc] = model.evaluate(node_evl_set,steps=total_node_evl//batch_size,verbose=0)
-            filename = os.path.join(save_dir,'node_EVAL_after_training.txt')
-            with open(filename,'a') as file_handle:
-                    file_handle.write(str(loss))
-                    file_handle.write(' ')
-                    file_handle.write(str(acc))
-                    file_handle.write('\n')
 
         # return model_weight   
         model_weights=model.get_weights() 

@@ -5,6 +5,7 @@ import os
 import shutil
 import matplotlib.pyplot as plt
 import tensorflow as tf
+import random
 import glob
 
 (x_train, y_train), (x_test, y_test) = tf.keras.datasets.cifar10.load_data()  #50000 train, 10000 test
@@ -20,35 +21,38 @@ for i in range(10):
 
 ##############################################################################
 '''
-Scenario iid.10w.10000
-Here get 10 worker nodes.
-worker: 10 class * 100 class_data  =1000
+unbanlanced testing set
 
 '''
 index_list=[]
-worker_nb=10
-class_nb=10
-class_data=100
+worker_nb = 10
 
-class_set=[]
-for i in range(worker_nb):
-    x=[i+j for j in range(class_nb)]
-    for c in range(len(x)):
-        while True:
-            if x[c]<10:
-                break
-            x[c]=x[c]-10  
-    class_set.append(x)
-print(class_set)
 
-record = [0 for i in range(10)]
+index = category_index[0][:900]
+index_list.append(index)
 
-for j in range(worker_nb):
-    index=np.concatenate([category_index[i][record[i]*class_data:record[i]*class_data+class_data] for i in class_set[j]])
-    for i in class_set[j]:
-        record[i] = record[i]+1
+index = category_index[1][:800]
+index_list.append(index)
+
+index = np.concatenate([category_index[2][:500],category_index[3][:300],category_index[4][:200]])
+index_list.append(index)
+
+mix = np.concatenate([category_index[i+5] for i in range(5)])
+mix = np.concatenate([mix, category_index[0][900:],category_index[1][800:],category_index[2][500:],category_index[3][300:],category_index[4][200:]])
+np.random.shuffle(mix)
+print(np.unique(y_test[mix],return_counts=True))
+
+
+record = 0
+for i in range(6):
+    class_data=random.randint(600,900)
+    index = mix[record:record+class_data]
+    record = record+class_data
     index_list.append(index)
-    print(record)
+
+index = mix[record:]
+index_list.append(index)
+
 len(index_list)
 ##############################################################################
 print(len(index_list))

@@ -18,22 +18,20 @@ import math
 import time
 import datetime
 
-from models import ANN_model,Xception_model
-MYSHAPE = (229,229,1)
-model=Xception_model(MYSHAPE)
+from models224 import myVGG
+from keras.preprocessing.image import ImageDataGenerator
+# gpus = tf.config.experimental.list_physical_devices(device_type='GPU')
+# tf.config.experimental.set_virtual_device_configuration( gpus[0], [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=31000)])
+
+model=myVGG(0)
 model.save_weights('server/server_weight.h5') #TODO: hash this line if want the server to continue after crash..???
 
 
 WEIGHT_PATH='server/server_weight.h5'
 EVALUATE_RESULT_PATH='server/evaluate'+datetime.datetime.now().strftime("%Y%m%d-%H%M%S")+'.txt'
-EVALUATE_DATA=pd.read_pickle('index/iid_valid.pkl')
+EVALUATE_DATA=pd.read_pickle('index/val_set.pkl')
 
-def load_img(img,lab):
-    img=tf.io.read_file(img)
-    img=tf.image.decode_jpeg(img, channels=1)
-    img = tf.cast(img,tf.float32) 
-    lab = tf.cast(lab,tf.float32)/2 
-    return img,lab
+
 
 def get_nb_matrix(model_weights,nb): #used to support np.average
     model_w=[]
@@ -67,18 +65,19 @@ class FedMLServicer(todo_pb2_grpc.FedMLServicer):
         self.worker_nb=3         #TODO:??????
         self.isready=False
         self.sizeList=[]
-        self.model=Xception_model(MYSHAPE)
+        self.model=myVGG(0)
 
     def evaluateModel(self):
-        batch_SIZE=100
-        valid_LEN = int(len(EVALUATE_DATA))
-        valid_EPO=int(valid_LEN // batch_SIZE)
-        valid_SET = tf.data.Dataset.from_tensor_slices((EVALUATE_DATA['dir'],EVALUATE_DATA['label'])).\
-                            map(load_img).\
-                            batch(batch_SIZE).\
-                            repeat().\
-                            prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
-        [loss,acc] =self.model.evaluate(valid_SET,steps=valid_EPO,verbose=1)
+        batch_SIZE=300
+        train_datagen = ImageDataGenerator(rescale=1 / 255.)
+        val_generator = train_datagen.flow_from_dataframe(EVALUATE_DATA, 
+                                                  x_col='dir', 
+                                                  y_col='new_label',
+                                                  directory = '.',
+                                                  target_size=(224, 224),
+                                                  batch_size=batch_SIZE,
+                                                  class_mode='binary')
+        [loss,acc] =self.model.evaluate_generator(val_generator,val_generator.samples // batch_SIZE,verbose=1)
         print('evaluation done~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
 
         with open(EVALUATE_RESULT_PATH,'a') as t:

@@ -17,20 +17,16 @@ import glob
 import base64
 import math
 
-from models import ANN_model,Xception_model
+from models224 import myVGG
+from keras.preprocessing.image import ImageDataGenerator
+# gpus = tf.config.experimental.list_physical_devices(device_type='GPU')
+# tf.config.experimental.set_virtual_device_configuration( gpus[0], [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=31000)])
 
 
 WEIGHT_PATH="client001/client_weights.h5"
 TRAIN_DATA = pd.read_pickle('index/worker1.pkl')
 CLIENTSIZE=int(len(TRAIN_DATA))
 
-
-def load_img(img,lab):
-    img=tf.io.read_file(img)
-    img=tf.image.decode_jpeg(img, channels=1)
-    img = tf.cast(img,tf.float32) 
-    lab = tf.cast(lab,tf.float32)/2 
-    return img,lab
 
 
 def ClientgetWeight(stub):
@@ -78,12 +74,12 @@ def ClientreCheck(stub):
 
 
 
-def run():
+def run(epo_nb):
 
-    MAX_MESSAGE_LENGTH=100000+50  #TODO: still not enough to shift my model...should I shift model by layer??
+    MAX_MESSAGE_LENGTH=100000+50 
     SETTINGS=[('grpc.max_send_message_length', MAX_MESSAGE_LENGTH),('grpc.max_receive_message_length', MAX_MESSAGE_LENGTH)]
 
-    with grpc.insecure_channel('39.104.16.170:50051', options=SETTINGS) as channel: #localhost
+    with grpc.insecure_channel('39.104.81.105:50051', options=SETTINGS) as channel: #localhost
         stub = todo_pb2_grpc.FedMLStub(channel)
         msg=ClientgetWeight(stub)
         print('ClientgetWeight done')
@@ -94,21 +90,24 @@ def run():
         #TODO: Client do local training here, save weight at WEIGHT_PATH
         g = tf.Graph()
         with g.as_default(): #tf.graph to solve memory leak
-            myshape = (229,229,1)
-            model=Xception_model(myshape)
+            
+            model=myVGG(epo_nb)
             model.load_weights(WEIGHT_PATH)
 
-            batch_SIZE=100
-            train_LEN = int(len(TRAIN_DATA))
-            train_EPO=int(train_LEN // batch_SIZE)
-            train_SET = tf.data.Dataset.from_tensor_slices((TRAIN_DATA['dir'],TRAIN_DATA['label'])).\
-                                            shuffle(train_LEN).\
-                                            map(load_img).\
-                                            batch(batch_SIZE).\
-                                            repeat().\
-                                            prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
-            epo=1
-            history = model.fit(train_SET,epochs=epo,steps_per_epoch=train_EPO)
+            batch_SIZE=300
+            train_datagen = ImageDataGenerator(rotation_range=360,horizontal_flip=True,vertical_flip=True,rescale=1 / 255.)
+            train_generator = train_datagen.flow_from_dataframe(TRAIN_DATA, 
+                                                    x_col='dir', 
+                                                    y_col='new_label',
+                                                    directory = '.',
+                                                    target_size=(224, 224),
+                                                    batch_size=batch_SIZE,
+                                                    class_mode='binary')
+            epo = 1
+            history= model.fit_generator(train_generator,
+                                        steps_per_epoch=train_generator.samples // batch_SIZE,
+                                        epochs=epo)
+
             model.save_weights(WEIGHT_PATH)
             filename = WEIGHT_PATH[:-17]+'self_EVAL.txt'
             with open(filename,'a') as f:
@@ -116,11 +115,8 @@ def run():
                 f.write(' ')
                 f.write(str(history.history.get('acc')))
                 f.write('\n')
-
             del model
         tf.keras.backend.clear_session()
-
-
 
 
 
@@ -133,6 +129,6 @@ def run():
 
 if __name__ == '__main__':
     logging.basicConfig()
-    for i in range(500):
-        a=run()
+    for i in range(100):
+        a=run(i)
         print('Round over')
