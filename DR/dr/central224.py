@@ -55,11 +55,19 @@ model=myVGG()
 
 epo=100
 model.summary()
+
+def step_decay(epoch):
+    mylr=1e-4
+    mylr = mylr/(1+0.05*epoch)
+    return mylr
+mylr = tf.keras.callbacks.LearningRateScheduler(step_decay)
+
 history= model.fit_generator(train_generator,
                     steps_per_epoch=train_generator.samples // batch_SIZE,
                     epochs=epo,
                     validation_data=val_generator,
-                    validation_steps = val_generator.samples // batch_SIZE)
+                    validation_steps = val_generator.samples // batch_SIZE,
+                    callbacks=[mylr])
 
 model.save_weights('myVGG.h5')
    
