@@ -79,7 +79,7 @@ def run(epo_nb):
     MAX_MESSAGE_LENGTH=100000+50 
     SETTINGS=[('grpc.max_send_message_length', MAX_MESSAGE_LENGTH),('grpc.max_receive_message_length', MAX_MESSAGE_LENGTH)]
 
-    with grpc.insecure_channel('39.104.81.105:50051', options=SETTINGS) as channel: #localhost
+    with grpc.insecure_channel('localhost:50051', options=SETTINGS) as channel: #localhost
         stub = todo_pb2_grpc.FedMLStub(channel)
         msg=ClientgetWeight(stub)
         print('ClientgetWeight done')
