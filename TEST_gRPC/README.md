@@ -4,7 +4,7 @@ Here's an example:
 Images stored in 'preprocessed' folder. Client001 read in 'index/worker1.pkl' and load its training data accordingly. Client001 load weight from server/ do training and save it to 'client001/client_weights'.   
 Server get weight from Client001 and save it to 'server/client001/client_weights', then merge the model and save it to 'server/server_weight.h5'.
 
-# What it to be trained:
+# What to be trained:
 The federated task of [DR](https://github.com/Jiarong000/Thesis2020/tree/master/DR)  
 Model to str method refers to [Mayank Shah](https://github.com/mayankshah1607/federated-learning-with-grpc-docker/blob/master/node/functions.py)
 
@@ -44,7 +44,6 @@ python3 -m grpc_tools.protoc -I=. --python_out=. --grpc_python_out=. ./todo.prot
 2. Server initialize model & weights, it will have 3 client for each total round    
 --round start--
 3. Receive the void request from client, read in and return model weight to it. (getWeight function)  
-    message myResponse {
 4. Receive the first client's weight, record each client's name (assume name is the path to save) and save client's returned weights to specific folder. Wait until all 3 clients finished, merge and evaluate the model. Send 'myResponse' back to clients. ('sendWeight' function)  
 5. NEXT ROUND  
 
