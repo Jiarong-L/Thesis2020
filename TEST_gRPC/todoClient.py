@@ -66,7 +66,7 @@ def ClientsendWeight(stub):
 
     return res
 
-def ClientreCheck(stub):
+def ClientreCheck(stub): # Not USED
     myrequest=todo_pb2.void()
     res = stub.reCheck(myrequest)
 
@@ -87,7 +87,7 @@ def run(epo_nb):
 
 
 
-        #TODO: Client do local training here, save weight at WEIGHT_PATH
+        #---------------Client do local training here, save weight at WEIGHT_PATH---------------------------
         g = tf.Graph()
         with g.as_default(): #tf.graph to solve memory leak
             
@@ -108,8 +108,8 @@ def run(epo_nb):
                                         steps_per_epoch=train_generator.samples // batch_SIZE,
                                         epochs=epo)
 
-            model.save_weights(WEIGHT_PATH)
-            filename = WEIGHT_PATH[:-17]+'self_EVAL.txt'
+            model.save_weights(WEIGHT_PATH)      #save model locally
+            filename = WEIGHT_PATH[:-17]+'self_EVAL.txt'    #save history locally
             with open(filename,'a') as f:
                 f.write(str(history.history.get('loss')))
                 f.write(' ')
@@ -117,6 +117,8 @@ def run(epo_nb):
                 f.write('\n')
             del model
         tf.keras.backend.clear_session()
+
+        # -----------------------------------local training ends--------------------------
 
 
 
