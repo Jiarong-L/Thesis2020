@@ -10,7 +10,7 @@ from models import ANN_model
 
 def img_augument(img,lab):
     img = tf.image.random_flip_left_right(img)
-    img = tf.image.random_flip_up_down(img)
+    # img = tf.image.random_flip_up_down(img)
     img = tf.image.random_brightness(img, 0.2)
     img = tf.image.random_hue(img,0.1)
     img = tf.image.random_contrast(img, 0.5, 2)

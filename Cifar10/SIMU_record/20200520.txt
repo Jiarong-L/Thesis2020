@@ -1,0 +1,56 @@
+'''
+Scenario 2c.10w.10000
+Here get 10 worker nodes.
+worker: 2 class * 500 class_data  =1000
+
+'''
+index_list=[]
+worker_nb=10
+class_nb=2
+class_data=200
+
+class_set=[]
+for i in range(worker_nb):
+    x=[i+j for j in range(class_nb)]
+    for c in range(len(x)):
+        while True:
+            if x[c]<10:
+                break
+            x[c]=x[c]-10  
+    class_set.append(x)
+print(class_set)
+
+record = [0 for i in range(10)]
+
+for j in range(worker_nb):
+    index=np.concatenate([category_index[i][record[i]:record[i]+class_data] for i in class_set[j]])
+    for i in class_set[j]:
+        record[i] = record[i]+class_data
+    index_list.append(index)
+    print(record)
+
+# B
+worker_nb=10
+class_nb=10
+class_data=10
+
+class_set=[]
+for i in range(worker_nb):
+    x=[i+j for j in range(class_nb)]
+    for c in range(len(x)):
+        while True:
+            if x[c]<10:
+                break
+            x[c]=x[c]-10  
+    class_set.append(x)
+print(class_set)
+
+for j in range(worker_nb):
+    index=np.concatenate([category_index[i][record[i]:record[i]+class_data] for i in class_set[j]])
+    for i in class_set[j]:
+        record[i] = record[i]+class_data
+    index_list.append(index)
+    print(record)
+
+
+worker_nb=len(index_list)
