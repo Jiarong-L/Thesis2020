@@ -59,6 +59,7 @@ def node_training_process(index_path,shared_index,central_weight_path,local_epoc
 
         # load index
         index1 = np.load(index_path) 
+        ori_traning = index1.shape[0] # node's own data size
 
         # assign node_evl_set (1/2)
         if node_evl:
@@ -100,13 +101,15 @@ def node_training_process(index_path,shared_index,central_weight_path,local_epoc
         y_train_i=y_train[index1]
 
         buffer_size = x_train_i.shape[0]
-        total_traning=index1.shape[0]
+        # total_traning=index1.shape[0]
 
         x_tr=tf.data.Dataset.from_tensor_slices(x_train_i)
         y_tr=tf.data.Dataset.from_tensor_slices(y_train_i)
+        total_traning = len(x_train_i)
 
         if local_iid==True:
             y_train_i2 , x_train_i2 =set_iid(y_train_i,x_train_i)
+            total_traning = len(x_train_i2)
             x_tr=tf.data.Dataset.from_tensor_slices(x_train_i2)
             y_tr=tf.data.Dataset.from_tensor_slices(y_train_i2)
 
@@ -176,5 +179,3 @@ def node_training_process(index_path,shared_index,central_weight_path,local_epoc
 
 
     return model_weights,total_traning
-
-# index_path
