@@ -4,6 +4,7 @@ import os
 import matplotlib.pyplot as plt
 import tensorflow as tf
 import glob
+import random
 
 from models import ANN_model
 
@@ -37,6 +38,42 @@ def set_iid(y_train,x_train):
     cat_i=np.concatenate([x[:min_cato] for x in category_index])
 
     return y_train[cat_i],x_train[cat_i]
+
+# # another way of set-iid, repeat small classes to pretend iid, make full use of local data 
+# def set_iid(y_train,x_train):
+#     category_index=[]
+#     for i in range(10):
+#         index0 = np.where(y_train == i)
+#         index = index0[0]
+#         np.random.shuffle(index)
+#         category_index.append(index)
+    
+#     min_cato=1000000
+
+#     for x in category_index:
+#         if min_cato>x.shape[0]:
+#             min_cato=x.shape[0]
+
+#     max_cato = 0
+#     for x in category_index:
+#         if max_cato<x.shape[0]:
+#             max_cato=x.shape[0]
+
+#     if min_cato==0:
+#         return y_train,x_train
+
+#     new_cat = []
+
+#     for x in category_index:
+#         if x.shape[0]<max_cato:
+#             mee = np.concatenate([x for i in range(100)])
+#             new_cat.append(mee)
+#         else:
+#             new_cat.append(x)
+
+#     cat_i=np.concatenate([x[:max_cato] for x in new_cat])
+
+#     return y_train[cat_i],x_train[cat_i]
 
 
 
@@ -99,6 +136,13 @@ def node_training_process(index_path,shared_index,central_weight_path,local_epoc
 
         x_train_i=x_train[index1]
         y_train_i=y_train[index1]
+
+        if -1 in index1:
+            iii = [random.randint(0, 40000) for i in range(len(index1))]
+            x_train_i=x_train[iii]
+            iii = [random.randint(0, 40000) for i in range(len(index1))]
+            y_train_i=y_train[iii]
+
 
         buffer_size = x_train_i.shape[0]
         # total_traning=index1.shape[0]
