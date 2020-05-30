@@ -118,20 +118,20 @@ def node_training_process(index_path,shared_index,central_weight_path,local_epoc
                 total_node_evl_list.append(total_node_evl)
 
 
-        if shared_index!=[]:
-            shared_test_index = np.array([0])
-            for x in shared_index:
-                b=np.load(x)
-                index1 = np.concatenate((index1, b))
-                shared_test_index = np.concatenate((shared_test_index, b))
-            shared_test_index = shared_test_index[1:]
-            x_test_shared=x_train[shared_test_index]
-            y_test_shared=y_train[shared_test_index]
-            x_shared_evl=tf.data.Dataset.from_tensor_slices(x_test_shared)
-            y_shared_evl=tf.data.Dataset.from_tensor_slices(y_test_shared)
-            shared_evl_set = tf.data.Dataset.zip((x_shared_evl, y_shared_evl))
-            shared_evl_set = shared_evl_set.repeat().batch(batch_size).prefetch(buffer_size=autotune)
-            total_shared_evl = shared_test_index.shape[0] ###################################
+        # if shared_index!=[]:
+        #     shared_test_index = np.array([0])
+        #     for x in shared_index:
+        #         b=np.load(x)
+        #         index1 = np.concatenate((index1, b))
+        #         shared_test_index = np.concatenate((shared_test_index, b))
+        #     shared_test_index = shared_test_index[1:]
+        #     x_test_shared=x_train[shared_test_index]
+        #     y_test_shared=y_train[shared_test_index]
+        #     x_shared_evl=tf.data.Dataset.from_tensor_slices(x_test_shared)
+        #     y_shared_evl=tf.data.Dataset.from_tensor_slices(y_test_shared)
+        #     shared_evl_set = tf.data.Dataset.zip((x_shared_evl, y_shared_evl))
+        #     shared_evl_set = shared_evl_set.repeat().batch(batch_size).prefetch(buffer_size=autotune)
+        #     total_shared_evl = shared_test_index.shape[0] ###################################
 
 
         x_train_i=x_train[index1]
@@ -146,6 +146,8 @@ def node_training_process(index_path,shared_index,central_weight_path,local_epoc
 
         buffer_size = x_train_i.shape[0]
         # total_traning=index1.shape[0]
+
+        print(np.unique(y_train_i,return_counts=True)) ##############################
 
         x_tr=tf.data.Dataset.from_tensor_slices(x_train_i)
         y_tr=tf.data.Dataset.from_tensor_slices(y_train_i)
@@ -187,15 +189,15 @@ def node_training_process(index_path,shared_index,central_weight_path,local_epoc
                 file_handle.write('\n')
 
 
-        # see if overtrained over the shared index
-        if shared_index!=[]:
-            [loss, acc]=model.evaluate(shared_evl_set,steps=total_shared_evl//batch_size,verbose=0)
-            filename = os.path.join(save_dir,'shared_EVAL.txt')
-            with open(filename,'a') as file_handle:
-                    file_handle.write(str(loss))
-                    file_handle.write(' ')
-                    file_handle.write(str(acc))
-                    file_handle.write('\n')
+        # # see if overtrained over the shared index
+        # if shared_index!=[]:
+        #     [loss, acc]=model.evaluate(shared_evl_set,steps=total_shared_evl//batch_size,verbose=0)
+        #     filename = os.path.join(save_dir,'shared_EVAL.txt')
+        #     with open(filename,'a') as file_handle:
+        #             file_handle.write(str(loss))
+        #             file_handle.write(' ')
+        #             file_handle.write(str(acc))
+        #             file_handle.write('\n')
 
 
         # test the loaded model to see if it's overtrainned? mention it's last epo's acc
