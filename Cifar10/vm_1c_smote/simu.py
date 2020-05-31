@@ -26,7 +26,7 @@ A
 index_list=[]
 worker_nb=10
 class_nb=1
-class_data=4000
+class_data=400
 
 class_set=[]
 for i in range(worker_nb):
@@ -42,7 +42,7 @@ print(class_set)
 record = [0 for i in range(10)]
 
 
-share_index = np.concatenate([category_index[i][-100:] for i in range(10)])
+share_index = np.concatenate([category_index[i][-10:] for i in range(10)])
 
 
 for j in range(worker_nb):

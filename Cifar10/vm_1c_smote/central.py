@@ -45,7 +45,7 @@ bad_node_size = 0
 node_EVL = False  # usually false to save time
 
 # SCENARIO='iid.40w.4000.dly{}.speed{}'.format(delayed_node_NUMBER,delayed_SPEED)
-SCENARIO='1c.{}w.40000.share1000_smote'.format(usual_node_NUMBER)
+SCENARIO='1c.{}w.4000.share100_smote'.format(usual_node_NUMBER)
 
 # SCENARIO='iid.{}w.4000.plus{}bad_each{}'.format(usual_node_NUMBER,bad_node_nb,bad_node_size)
 

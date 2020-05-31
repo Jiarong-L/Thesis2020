@@ -5,7 +5,8 @@ import matplotlib.pyplot as plt
 import tensorflow as tf
 import glob
 import random
-from imblearn.over_sampling import SMOTENC, ADASYN,RandomOverSampler
+from imblearn.over_sampling import SMOTENC,ADASYN
+# from collections import Counter
 import imblearn
 
 from models import ANN_model
@@ -20,11 +21,6 @@ def img_augument(img,lab):
     return img, lab
 
 
-def do_smotenic():
-
-    pass
-
-
 
 def set_iid(y_train,x_train):
 
@@ -36,8 +32,10 @@ def set_iid(y_train,x_train):
     flat_x = np.reshape(x_train, (orig_x[0], 32*32*3))
     flat_y = y_train
 
+    strategy_dict = dict(zip([i for i in range(10)], [410 for i in range(10)]))
 
-    x_resampled, y_resampled = SMOTENC(categorical_features= [i for i in range(10)]).fit_resample(flat_x, flat_y)
+
+    x_resampled, y_resampled = SMOTENC(categorical_features= [i for i in range(10)], sampling_strategy=strategy_dict).fit_resample(flat_x, flat_y)
 
     nc = len(y_resampled)
 
@@ -47,6 +45,8 @@ def set_iid(y_train,x_train):
     
     bal_x = np.reshape(x_resampled, new_shape_x)
     bal_y = np.reshape(y_resampled, new_shape_y)
+
+    # print(np.unique(bal_y,return_counts=True))
 
     return  bal_y,bal_x
 
@@ -151,6 +151,7 @@ def node_training_process(index_path,shared_index,central_weight_path,local_epoc
 
         if local_iid==True:
             y_train_i2 , x_train_i2 =set_iid(y_train_i,x_train_i)
+            print(np.unique(y_train_i2,return_counts=True)) ##############################
             total_traning = len(x_train_i2)
             x_tr=tf.data.Dataset.from_tensor_slices(x_train_i2)
             y_tr=tf.data.Dataset.from_tensor_slices(y_train_i2)
