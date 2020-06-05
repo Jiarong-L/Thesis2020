@@ -30,5 +30,9 @@ Using python3 and tf2.0.1 cpu/gpu version
 
 ## This example is a simulation on a single machine.  
 Using the cifar10 dataset: 50000 training set + 10000 testing set. 10 classes.  
-Split the testing set, but central_node & worker_node shares the same testing set.  
+Split the testing set, but central_node owns the whole testing set.  
 *assume each folder is a machine
+
+## Record of each test
+Link: https://pan.baidu.com/s/1VBTusDNyJN9DtnzP9QBZlg  
+key: bcvj

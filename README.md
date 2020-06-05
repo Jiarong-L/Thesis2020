@@ -2,6 +2,11 @@
 
 This is the repo for thesis.  
 
+[Cifar10](https://github.com/Jiarong000/Thesis2020/tree/master/Cifar10) folder is for simulation  
+[DR](https://github.com/Jiarong000/Thesis2020/tree/master/DR) folder is for local testing DR  
+[TEST_gRPC](https://github.com/Jiarong000/Thesis2020/tree/master/TEST_gRPC) folder is for cloud implementing DR
+
+
 Results plot in below links: 
 
 ## Simulation with 4k
