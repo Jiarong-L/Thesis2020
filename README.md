@@ -1,6 +1,6 @@
 # Thesis2020
 
-This is the repo for thesis.  
+This is the repo for thesis.  Thesis Draft could be found [here](https://github.com/Jiarong000/Thesis2020/tree/master/thesis draft/Jiarong_revise_8_7.pdf)
 
 [Cifar10](https://github.com/Jiarong000/Thesis2020/tree/master/Cifar10) folder is for simulation  
 [DR](https://github.com/Jiarong000/Thesis2020/tree/master/DR) folder is for local testing DR  
