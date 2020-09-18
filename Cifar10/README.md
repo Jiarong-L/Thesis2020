@@ -1,13 +1,14 @@
 # cifar10
 
-Using python3 and tf2.0.1 cpu/gpu version
+Using python3 and tf2.0.1 cpu/gpu version  
+[Code for the simulation system](https://github.com/Jiarong000/Thesis2020/tree/master/Cifar10/FedSimuCode/vm)  
 
-## The Simulation.ipython will:
+## The Simulation.ipython(or 'simu.py') will:
 1. Assign data to worker_node (Save dataset's index to worker's folder)  
 2. Build and compile the model, save the initial model weights  
 
 
-## The central_node will:
+## The central_node('central.py') will:
 1. Ask worker_node to start local training
 2. Collects and weighted average the model weights
 3. Save model weights
@@ -18,7 +19,7 @@ Using python3 and tf2.0.1 cpu/gpu version
 1. Plot result in the 'result' folder
 
 
-## The worker_node will:
+## The worker_node('worker_node.py') will:
 1. Build and compile the model (same as central)  
 2. Load model weights from central_node  
 3. Load data (Load the assigned index, then prepare the data accordingly)  
